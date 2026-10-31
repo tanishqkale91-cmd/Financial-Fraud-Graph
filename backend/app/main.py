@@ -8,6 +8,7 @@ from sqlalchemy import text
 
 from app.core.db import engine, init_db
 from app.core.neo4j_client import ensure_constraints, run_query, close_driver
+from app.api.ingestion import router as ingestion_router
 
 
 @asynccontextmanager
@@ -63,3 +64,7 @@ def health():
         "postgres": postgres_ok,
         "neo4j": neo4j_ok,
     }
+
+
+# Include Routers
+app.include_router(ingestion_router)

@@ -33,6 +33,7 @@ rule_id TEXT PK | version INT | weight FLOAT | params JSONB | enabled BOOL
 ### alerts
 id UUID PK | rule_id TEXT | rule_version INT | score FLOAT | reason TEXT | evidence JSONB
 | entity_id UUID FK NULL | status TEXT (open|in_case|false_positive|confirmed) | created_at TIMESTAMPTZ
+| score_breakdown JSONB NULL
 
 ### alert_transactions
 alert_id UUID FK | transaction_id BIGINT FK  (composite PK)
@@ -47,3 +48,5 @@ Relationships:
 - (:Account)-[:USES]->(:Device)
 - (:Account)-[:HAS_PHONE]->(:Phone)
 Constraints: UNIQUE id on every label.
+
+Note: Self-transfers (Account == Account.1 / from_entity_id == to_entity_id) must be excluded from graph construction, cycle detection, degree features, and Neo4j sync, but kept in PostgreSQL.

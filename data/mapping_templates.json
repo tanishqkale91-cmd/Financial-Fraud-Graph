@@ -1,0 +1,45 @@
+[
+  {
+    "id": "ibm_aml",
+    "name": "IBM AML Dataset",
+    "mapping": {
+      "timestamp": "Timestamp",
+      "from_account": "Account",
+      "to_account": "Account.1",
+      "amount": "Amount Paid",
+      "currency": "Payment Currency",
+      "payment_format": "Payment Format",
+      "device_id": "sender_device",
+      "phone": "sender_phone",
+      "ip": "sender_ip",
+      "beneficiary_name": "beneficiary_name"
+    }
+  },
+  {
+    "id": "native",
+    "name": "Native Format",
+    "mapping": {
+      "txn_id": "txn_id",
+      "timestamp": "timestamp",
+      "from_account": "from_account",
+      "to_account": "to_account",
+      "amount": "amount",
+      "currency": "currency",
+      "payment_format": "payment_format",
+      "device_id": "device_id",
+      "phone": "phone",
+      "ip": "ip",
+      "beneficiary_name": "beneficiary_name"
+    }
+  },
+  {
+    "id": "d0d29e40",
+    "name": "Custom AML Template",
+    "mapping": {
+      "timestamp": "TxnDate",
+      "from_account": "Src",
+      "to_account": "Dst",
+      "amount": "Value"
+    }
+  }
+]

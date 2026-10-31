@@ -4,6 +4,9 @@ Every detector returns, per finding: rule_id, rule_version, score (0 to 1), reas
 built from the template below), evidence (JSON), and the transaction ids involved.
 Defaults live in rule_config.params and can be changed without code edits.
 
+> **Note on Self-Transfers:**
+> Self-transfers (`Account == Account.1` / `from_entity_id == to_entity_id`) must be excluded from graph construction, cycle detection, degree features, and Neo4j sync, but kept in PostgreSQL.
+
 ## 1. shared_infra (rule_id: shared_infra, version 1)
 Definition: one device or phone linked to several distinct accounts.
 Params: min_accounts=3

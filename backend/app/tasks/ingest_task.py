@@ -1,8 +1,8 @@
-"""ingest_task.py — Celery task for CSV import. Full logic added in Step 6."""
+"""ingest_task.py — Celery tasks for ingestion."""
 from app.core.celery_app import celery_app
 
 
-@celery_app.task(name="tasks.ingest")
-def ingest_csv(file_path: str, schema_name: str) -> dict:
-    """Placeholder — will call ingestion service in Step 6."""
-    return {"status": "pending", "file": file_path}
+@celery_app.task(name="app.tasks.ingest_task.ping")
+def ping() -> str:
+    """Health check task returning 'pong'."""
+    return "pong"

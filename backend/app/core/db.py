@@ -1,34 +1,33 @@
 """
-db.py — SQLAlchemy engine and session factory.
-
-SQLAlchemy concept for you:
-  - Engine = the connection pool to Postgres (like a JDBC DataSource in Java).
-  - Session = one unit of work: you run queries on it, then commit or rollback.
-  - SessionLocal() creates a new session; always close it when done.
+db.py — SQLAlchemy engine, SessionLocal, Base, and get_db() dependency.
 """
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
 from app.core.config import settings
 
-# echo=True prints every SQL to console — handy for debugging, turn off in prod.
-engine = create_engine(settings.postgres_dsn, echo=settings.debug)
+engine = create_engine(settings.DATABASE_URL, echo=settings.DEBUG)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 class Base(DeclarativeBase):
-    """All ORM models inherit from this."""
+    """All ORM models inherit from this Base."""
     pass
 
 
 def get_db():
     """
     FastAPI dependency — yields a DB session and closes it automatically.
-    Usage:  db: Session = Depends(get_db)
     """
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
+
+def init_db() -> None:
+    """Create all tables defined in models."""
+    import app.models  # ensure models are imported and registered with Base
+    Base.metadata.create_all(bind=engine)

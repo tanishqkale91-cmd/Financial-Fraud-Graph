@@ -1,0 +1,121 @@
+{
+  "total": 2,
+  "items": [
+    {
+      "id": "CASE-2026-001",
+      "title": "Operation Cyclone: Multi-Account Circular Laundering Ring",
+      "status": "in_review",
+      "priority": "high",
+      "created_at": "01-09-2022 01:10",
+      "alert_ids": ["ALT-2026-0091", "ALT-2026-0084"],
+      "assignee": "A. Menon (Senior AML Lead)"
+    },
+    {
+      "id": "CASE-2026-002",
+      "title": "Mule Aggregation Hub & Offshore Layering",
+      "status": "open",
+      "priority": "medium",
+      "created_at": "01-09-2022 02:00",
+      "alert_ids": ["ALT-2026-0078"],
+      "assignee": "K. Iyer (Forensic Analyst)"
+    }
+  ],
+  "details": {
+    "CASE-2026-001": {
+      "id": "CASE-2026-001",
+      "title": "Operation Cyclone: Multi-Account Circular Laundering Ring",
+      "status": "in_review",
+      "priority": "high",
+      "created_at": "01-09-2022 01:10",
+      "assignee": "A. Menon (Senior AML Lead)",
+      "alert_ids": ["ALT-2026-0091", "ALT-2026-0084"],
+      "evidence": [
+        {
+          "id": "EV-01",
+          "type": "alert",
+          "ref": "ALT-2026-0091",
+          "content": {
+            "rule_id": "cycles",
+            "score": 96.5,
+            "description": "4-hop cycle originating and terminating at 8000EBD30 within 18 minutes (volume: 450,000 INR)"
+          },
+          "created_at": "01-09-2022 01:12"
+        },
+        {
+          "id": "EV-02",
+          "type": "subgraph",
+          "ref": "GRAPH_SNAP_CYC1",
+          "content": {
+            "entity_id": "PLANTCYC1",
+            "nodes_count": 6,
+            "edges_count": 5,
+            "notes": "Snapshot captured with 2 hops highlighting shared hardware device DEV_SHARED_01 between Rajesh Kumar and Amit Sharma"
+          },
+          "created_at": "01-09-2022 01:15"
+        },
+        {
+          "id": "EV-03",
+          "type": "transaction",
+          "ref": "TXN_7701",
+          "content": {
+            "from": "8000EBD30",
+            "to": "PLANTCYC1",
+            "amount": 450000.0,
+            "currency": "INR",
+            "channel": "UPI"
+          },
+          "created_at": "01-09-2022 01:18"
+        },
+        {
+          "id": "EV-04",
+          "type": "note",
+          "ref": "ANALYST_NOTE",
+          "content": {
+            "text": "Cross-referenced KYC documentation for PLANTCYC1 and PLANTCYC2. Both accounts registered using forged Aadhaar cards from the same IP block (103.212.43.19)."
+          },
+          "created_at": "01-09-2022 01:25"
+        }
+      ],
+      "tasks": [
+        {
+          "id": "TSK-101",
+          "title": "Freeze outbound UPI settlements on 8000EBD30 and PLANTCYC1",
+          "assignee": "R. Sharma (Ops Desk)",
+          "due_date": "01-09-2022 04:00",
+          "status": "done"
+        },
+        {
+          "id": "TSK-102",
+          "title": "Request device IMEI trace from telco provider for DEV_SHARED_01",
+          "assignee": "A. Menon",
+          "due_date": "01-09-2022 08:00",
+          "status": "open"
+        },
+        {
+          "id": "TSK-103",
+          "title": "Draft Suspicious Activity Report (SAR) filing for FIU-IND",
+          "assignee": "A. Menon",
+          "due_date": "01-09-2022 12:00",
+          "status": "open"
+        }
+      ],
+      "decisions": [
+        {
+          "id": "DEC-001",
+          "decision": "confirmed_fraud",
+          "rationale": "Clear algorithmic cycle topology, zero economic commercial justification, and shared physical device between nominal distinct counterparties confirm coordinated synthetic fraud ring.",
+          "decider": "A. Menon (Senior AML Lead)",
+          "created_at": "01-09-2022 01:40"
+        }
+      ],
+      "summary": "Forensic investigation establishes coordinated money laundering via a 4-hop circular routing ring. 450,000 INR was dispatched from account 8000EBD30 (Rajesh Kumar), relayed through mule nodes PLANTCYC1, PLANTCYC2, and PLANTCYC3, and returned to origin in 18 minutes with 2.55% slippage. Hardware device DEV_SHARED_01 was concurrently utilized to authenticate transactions across both originator and intermediary accounts from Bangalore IP 103.212.43.19, conclusively refuting legitimate third-party commerce.",
+      "audit": [
+        {"ts": "01-09-2022 01:10", "user": "A. Menon", "action": "CASE_CREATED", "detail": "Created case from alerts ALT-2026-0091, ALT-2026-0084"},
+        {"ts": "01-09-2022 01:12", "user": "A. Menon", "action": "EVIDENCE_ATTACHED", "detail": "Attached alert ALT-2026-0091"},
+        {"ts": "01-09-2022 01:15", "user": "A. Menon", "action": "SUBGRAPH_ATTACHED", "detail": "Saved subgraph snapshot GRAPH_SNAP_CYC1"},
+        {"ts": "01-09-2022 01:25", "user": "R. Sharma", "action": "TASK_COMPLETED", "detail": "Marked TSK-101 (Freeze outbound settlements) as done"},
+        {"ts": "01-09-2022 01:40", "user": "A. Menon", "action": "DECISION_RECORDED", "detail": "Recorded decision 'confirmed_fraud' with rationale"}
+      ]
+    }
+  }
+}

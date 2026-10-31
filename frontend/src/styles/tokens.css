@@ -1,0 +1,103 @@
+/* Design Tokens for Fraud Graph & Transaction Anomaly Workbench */
+/* Calibrated directly from docs/frontend/design/Design.png */
+
+:root {
+  /* Surface & Ground Colors */
+  --bg-canvas: #f6f7fa;
+  --bg-surface: #ffffff;
+  --bg-surface-subtle: #f1f3f7;
+  --bg-surface-hover: #e9ecf2;
+  --bg-surface-active: #dfe3ea;
+
+  /* Dark Analytical Consoles (from Design.png) */
+  --bg-dark-panel: #121927;
+  --bg-dark-surface: #182234;
+  --bg-dark-surface-hover: #1f2d44;
+  --bg-dark-border: #232f46;
+  --text-dark-primary: #f8fafc;
+  --text-dark-secondary: #cbd5e1;
+  --text-dark-muted: #94a3b8;
+
+  /* Light Text Colors - Calibrated for AAA / AA contrast */
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-tertiary: #475569;
+  --text-muted: #64748b;
+
+  /* Borders & Dividers */
+  --border-subtle: #e2e6ed;
+  --border-default: #cbd2dc;
+  --border-strong: #94a3b8;
+
+  /* Brand & Accent */
+  --accent-navy: #0f172a;
+  --accent-navy-hover: #1e293b;
+  --accent-gold: #b45309;
+  --accent-gold-bg: rgba(180, 83, 9, 0.1);
+  --accent-gold-border: #92400e;
+
+  /* Semantic Evidential Risk Colors (ALWAYS with label & score) */
+  --risk-normal: #10b981;
+  --risk-normal-bg: rgba(16, 185, 129, 0.12);
+  --risk-normal-border: #10b981;
+  --risk-normal-text: #065f46;
+
+  --risk-watch: #0284c7;
+  --risk-watch-bg: rgba(2, 132, 199, 0.12);
+  --risk-watch-border: #0284c7;
+  --risk-watch-text: #075985;
+
+  --risk-high: #b45309;
+  --risk-high-bg: rgba(217, 119, 6, 0.1);
+  --risk-high-border: #b45309;
+  --risk-high-text: #78350f;
+
+  --risk-critical: #dc2626;
+  --risk-critical-bg: rgba(220, 38, 38, 0.12);
+  --risk-critical-border: #dc2626;
+  --risk-critical-text: #991b1b;
+
+  /* Typography Scale */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  --font-xs: 0.75rem;    /* 12px */
+  --font-sm: 0.8125rem;  /* 13px */
+  --font-base: 0.875rem;  /* 14px */
+  --font-md: 1rem;       /* 16px */
+  --font-lg: 1.125rem;   /* 18px */
+  --font-xl: 1.25rem;    /* 20px */
+  --font-2xl: 1.75rem;   /* 28px */
+  --font-3xl: 2.25rem;   /* 36px */
+
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Spacing Scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  /* Radii */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+
+  /* Shadows (evidential, crisp, zero glow) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --shadow-panel: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
+
+  /* Functional Transitions (150ms-200ms ease-out) */
+  --transition-fast: 150ms ease-out;
+  --transition-normal: 200ms ease-out;
+}

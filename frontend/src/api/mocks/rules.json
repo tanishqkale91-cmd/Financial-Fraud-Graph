@@ -1,0 +1,77 @@
+{
+  "rules": [
+    {
+      "rule_id": "cycles",
+      "version": "v1.4.0",
+      "weight": 0.45,
+      "enabled": true,
+      "params": {
+        "max_hops": 5,
+        "max_duration_hours": 24,
+        "min_amount": 50000,
+        "max_decay_pct": 10.0
+      }
+    },
+    {
+      "rule_id": "shared_infra",
+      "version": "v1.2.1",
+      "weight": 0.35,
+      "enabled": true,
+      "params": {
+        "min_shared_entities": 3,
+        "window_days": 7,
+        "track_hardware_uuid": true
+      }
+    },
+    {
+      "rule_id": "fan_in_out",
+      "version": "v1.1.0",
+      "weight": 0.25,
+      "enabled": true,
+      "params": {
+        "min_inbound_counterparties": 5,
+        "ratio_vs_baseline_threshold": 4.0,
+        "window_hours": 12
+      }
+    },
+    {
+      "rule_id": "rapid_movement",
+      "version": "v1.3.0",
+      "weight": 0.30,
+      "enabled": true,
+      "params": {
+        "min_transfer_out_ratio": 0.85,
+        "max_holding_minutes": 30,
+        "min_amount": 100000
+      }
+    }
+  ],
+  "stats": {
+    "by_rule": [
+      {
+        "rule_id": "cycles",
+        "alerts": 28,
+        "false_positives": 1,
+        "fp_rate": 0.0357
+      },
+      {
+        "rule_id": "shared_infra",
+        "alerts": 42,
+        "false_positives": 3,
+        "fp_rate": 0.0714
+      },
+      {
+        "rule_id": "fan_in_out",
+        "alerts": 19,
+        "false_positives": 2,
+        "fp_rate": 0.1052
+      },
+      {
+        "rule_id": "rapid_movement",
+        "alerts": 34,
+        "false_positives": 5,
+        "fp_rate": 0.1470
+      }
+    ]
+  }
+}

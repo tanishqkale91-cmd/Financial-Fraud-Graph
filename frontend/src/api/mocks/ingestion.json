@@ -1,0 +1,168 @@
+{
+  "batch_id": "BATCH_20261031_0821",
+  "status": "completed",
+  "row_count": 50000,
+  "valid_count": 48920,
+  "invalid_count": 1080,
+  "report": {
+    "total": 50000,
+    "valid": 48920,
+    "invalid": 1080,
+    "by_rule": {
+      "self_transfer_detected": 420,
+      "unsupported_currency": 310,
+      "non_positive_amount": 190,
+      "malformed_timestamp": 160
+    },
+    "examples": {
+      "self_transfer_detected": [
+        {
+          "row_index": 4,
+          "from_account": "8000EBD30",
+          "to_account": "8000EBD30",
+          "amount": 5000.0,
+          "reason": "Originator and beneficiary accounts are identical (Internal self-transfer)"
+        },
+        {
+          "row_index": 218,
+          "from_account": "PLANTCYC1",
+          "to_account": "PLANTCYC1",
+          "amount": 12000.0,
+          "reason": "Originator and beneficiary accounts are identical"
+        }
+      ],
+      "unsupported_currency": [
+        {
+          "row_index": 1204,
+          "from_account": "8000A192C",
+          "to_account": "9910BC012",
+          "amount": 100.0,
+          "reason": "Currency code 'XXX' is unmapped in ISO-4217 standard"
+        }
+      ],
+      "non_positive_amount": [
+        {
+          "row_index": 3410,
+          "from_account": "8000B9921",
+          "to_account": "8000C1288",
+          "amount": 0.0,
+          "reason": "Transaction amount must be strictly greater than 0"
+        }
+      ],
+      "malformed_timestamp": [
+        {
+          "row_index": 4901,
+          "from_account": "8000EBD30",
+          "to_account": "PLANTFAN03",
+          "amount": 54000.0,
+          "reason": "Failed to parse format; expected DD-MM-YYYY HH:mm"
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "TXN_7701": [
+      {
+        "step": "ingested",
+        "detail": "Extracted from multipart stream 'HI-Small_50k_enriched.csv' at offset row #1",
+        "created_at": "31-10-2026 13:20:01"
+      },
+      {
+        "step": "mapped",
+        "detail": "Mapped raw columns 'Account' -> from_account, 'Account.1' -> to_account, 'Amount Paid' -> amount",
+        "created_at": "31-10-2026 13:20:02"
+      },
+      {
+        "step": "validated",
+        "detail": "Passed all integrity rules (non-zero amount, distinct accounts, valid timestamp)",
+        "created_at": "31-10-2026 13:20:02"
+      },
+      {
+        "step": "normalised",
+        "detail": "Before: '  8000ebd30  ' / 'rajesh kumar  ' -> After: '8000EBD30' / 'Rajesh Kumar'",
+        "created_at": "31-10-2026 13:20:03"
+      },
+      {
+        "step": "entity_merged",
+        "detail": "Merged with entity ENT_IND_0089 (Rajesh Kumar) with match score 0.94 based on verified phone and UPI VPA",
+        "created_at": "31-10-2026 13:20:04"
+      },
+      {
+        "step": "loaded",
+        "detail": "Persisted to PostgreSQL table 'transactions' with UUID 7701-44a1-b8ef-0012",
+        "created_at": "31-10-2026 13:20:05"
+      }
+    ]
+  },
+  "entities": [
+    {
+      "id": "8000EBD30",
+      "entity_type": "account",
+      "display_name": "Rajesh Kumar",
+      "match_score": 0.94,
+      "match_reason": "Exact phone and normalized beneficiary match",
+      "aliases": [
+        {"alias_value": "rajesh.k@okaxis", "match_score": 0.98, "match_reason": "Direct VPA binding"},
+        {"alias_value": "+91-98765-43210", "match_score": 1.0, "match_reason": "Device SIM binding"},
+        {"alias_value": "DEV_SHARED_01", "match_score": 0.88, "match_reason": "Hardware UUID fingerprint"}
+      ]
+    },
+    {
+      "id": "PLANTCYC1",
+      "entity_type": "account",
+      "display_name": "Amit Sharma (Planted Ring 1)",
+      "match_score": 0.91,
+      "match_reason": "Shared device DEV_SHARED_01 and sequential UPI timestamp routing",
+      "aliases": [
+        {"alias_value": "amit.sharma99@icici", "match_score": 0.96, "match_reason": "VPA match"},
+        {"alias_value": "DEV_SHARED_01", "match_score": 0.92, "match_reason": "Device co-location"}
+      ]
+    },
+    {
+      "id": "PLANTFAN00",
+      "entity_type": "account",
+      "display_name": "Vikram Malhotra (Mule Hub)",
+      "match_score": 0.89,
+      "match_reason": "Aggregated 11 inbound micro-transfers to single beneficiary account",
+      "aliases": [
+        {"alias_value": "vikram.mule@ybl", "match_score": 0.95, "match_reason": "VPA match"}
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "TPL_DEFAULT_AML",
+      "name": "IBM AML Standard Enriched Format",
+      "mapping": {
+        "timestamp": "Timestamp",
+        "from_account": "Account",
+        "to_account": "Account.1",
+        "amount": "Amount Paid",
+        "currency": "Payment Currency",
+        "payment_format": "Payment Format",
+        "device_id": "device_id",
+        "phone": "phone",
+        "ip": "ip",
+        "beneficiary_name": "beneficiary_name",
+        "is_laundering": "Is Laundering"
+      }
+    },
+    {
+      "id": "TPL_UPI_CORE",
+      "name": "NPCI UPI Raw Feed Specification",
+      "mapping": {
+        "timestamp": "txn_timestamp",
+        "from_account": "remitter_vpa",
+        "to_account": "beneficiary_vpa",
+        "amount": "amount_inr",
+        "currency": "curr",
+        "payment_format": "channel",
+        "device_id": "device_uuid",
+        "phone": "mobile_no",
+        "ip": "ip_addr",
+        "beneficiary_name": "payee_name",
+        "is_laundering": "flag_aml"
+      }
+    }
+  ]
+}

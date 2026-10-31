@@ -1,0 +1,227 @@
+{
+  "ALT-2026-0091": {
+    "id": "ALT-2026-0091",
+    "rule_id": "cycles",
+    "rule_version": "v1.4.0",
+    "score": 96.5,
+    "reason": "Circular routing cycle detected: 4 accounts passed 450,000 INR back to origin in 18 minutes",
+    "status": "open",
+    "evidence": {
+      "cycle_type": "directed_ring_settlement",
+      "hop_count": 4,
+      "cycle_path": [
+        "8000EBD30",
+        "PLANTCYC1",
+        "PLANTCYC2",
+        "PLANTCYC3",
+        "8000EBD30"
+      ],
+      "cycle_duration_minutes": 18,
+      "initial_amount": 450000.0,
+      "final_amount": 438500.0,
+      "decay_loss_pct": 2.55,
+      "accounts": [
+        {"account_id": "8000EBD30", "holder": "Rajesh Kumar", "role": "Originator & Recipient Sink"},
+        {"account_id": "PLANTCYC1", "holder": "Amit Sharma", "role": "Relay Node 1"},
+        {"account_id": "PLANTCYC2", "holder": "Suresh Raina", "role": "Relay Node 2"},
+        {"account_id": "PLANTCYC3", "holder": "Deepak Chahar", "role": "Relay Node 3"}
+      ]
+    },
+    "score_breakdown": {
+      "rules": [
+        {"rule_id": "cycles", "weight": 0.45, "score": 98.0},
+        {"rule_id": "rapid_movement", "weight": 0.25, "score": 91.5},
+        {"rule_id": "shared_infra", "weight": 0.15, "score": 88.0}
+      ],
+      "ml": {
+        "score": 94.2,
+        "top_features": [
+          {"name": "cycle_shortest_path_decay", "value": 0.025, "contribution": 0.42},
+          {"name": "inflow_outflow_velocity_sec", "value": 1080.0, "contribution": 0.31},
+          {"name": "device_fingerprint_entropy", "value": 0.12, "contribution": 0.18}
+        ]
+      }
+    },
+    "transactions": [
+      {
+        "id": "TXN_7701",
+        "txn_ts": "01-09-2022 00:20",
+        "from_entity_id": "8000EBD30",
+        "to_entity_id": "PLANTCYC1",
+        "amount": 450000.0,
+        "currency": "INR"
+      },
+      {
+        "id": "TXN_7702",
+        "txn_ts": "01-09-2022 00:26",
+        "from_entity_id": "PLANTCYC1",
+        "to_entity_id": "PLANTCYC2",
+        "amount": 446000.0,
+        "currency": "INR"
+      },
+      {
+        "id": "TXN_7703",
+        "txn_ts": "01-09-2022 00:32",
+        "from_entity_id": "PLANTCYC2",
+        "to_entity_id": "PLANTCYC3",
+        "amount": 442000.0,
+        "currency": "INR"
+      },
+      {
+        "id": "TXN_7704",
+        "txn_ts": "01-09-2022 00:38",
+        "from_entity_id": "PLANTCYC3",
+        "to_entity_id": "8000EBD30",
+        "amount": 438500.0,
+        "currency": "INR"
+      }
+    ]
+  },
+  "ALT-2026-0084": {
+    "id": "ALT-2026-0084",
+    "rule_id": "shared_infra",
+    "rule_version": "v1.2.1",
+    "score": 92.0,
+    "reason": "Hardware device DEV_SHARED_01 and IP 103.212.43.19 shared across 5 distinct KYC entities within 48h",
+    "evidence": {
+      "device_id": "DEV_SHARED_01",
+      "device_model": "OnePlus 9 Pro (OxygenOS 13)",
+      "ip_address": "103.212.43.19 (ACT Fibernet, Bangalore)",
+      "shared_account_count": 5,
+      "accounts": [
+        {"account_id": "8000EBD30", "holder": "Rajesh Kumar", "last_active": "01-09-2022 00:20"},
+        {"account_id": "PLANTCYC1", "holder": "Amit Sharma", "last_active": "01-09-2022 00:26"},
+        {"account_id": "PLANTCYC2", "holder": "Suresh Raina", "last_active": "01-09-2022 00:32"},
+        {"account_id": "PLANTFAN01", "holder": "Pooja Verma", "last_active": "01-09-2022 01:15"},
+        {"account_id": "DEV_SHARED_MULE", "holder": "Manish Pandey", "last_active": "01-09-2022 01:45"}
+      ]
+    },
+    "score_breakdown": {
+      "rules": [
+        {"rule_id": "shared_infra", "weight": 0.60, "score": 95.0},
+        {"rule_id": "cycles", "weight": 0.20, "score": 75.0}
+      ],
+      "ml": {
+        "score": 88.6,
+        "top_features": [
+          {"name": "accounts_per_device_ratio", "value": 5.0, "contribution": 0.55},
+          {"name": "ip_subnet_clustering", "value": 0.89, "contribution": 0.25}
+        ]
+      }
+    },
+    "transactions": [
+      {
+        "id": "TXN_7701",
+        "txn_ts": "01-09-2022 00:20",
+        "from_entity_id": "8000EBD30",
+        "to_entity_id": "PLANTCYC1",
+        "amount": 450000.0,
+        "currency": "INR"
+      },
+      {
+        "id": "TXN_7810",
+        "txn_ts": "01-09-2022 01:15",
+        "from_entity_id": "PLANTFAN01",
+        "to_entity_id": "PLANTFAN00",
+        "amount": 280000.0,
+        "currency": "INR"
+      }
+    ]
+  },
+  "ALT-2026-0078": {
+    "id": "ALT-2026-0078",
+    "rule_id": "fan_in_out",
+    "rule_version": "v1.1.0",
+    "score": 87.4,
+    "reason": "Aggressive fan-in concentration: 11 distinct originator accounts credited PLANTFAN00 within 2 hours",
+    "evidence": {
+      "hub_account": "PLANTFAN00",
+      "hub_holder": "Vikram Malhotra",
+      "inbound_counterparties_count": 11,
+      "inbound_baseline_average": 1.2,
+      "counterparty_ratio_vs_baseline": 9.17,
+      "total_inbound_volume": 2850000.0,
+      "immediate_outflow_amount": 2800000.0,
+      "outflow_destination": "OFFSHORE_ACC_992"
+    },
+    "score_breakdown": {
+      "rules": [
+        {"rule_id": "fan_in_out", "weight": 0.70, "score": 91.0},
+        {"rule_id": "rapid_movement", "weight": 0.15, "score": 82.0}
+      ],
+      "ml": {
+        "score": 83.5,
+        "top_features": [
+          {"name": "inbound_degree_zscore", "value": 4.8, "contribution": 0.58},
+          {"name": "aggregation_velocity_ratio", "value": 0.98, "contribution": 0.28}
+        ]
+      }
+    },
+    "transactions": [
+      {
+        "id": "TXN_8101",
+        "txn_ts": "01-09-2022 01:05",
+        "from_entity_id": "PLANTFAN01",
+        "to_entity_id": "PLANTFAN00",
+        "amount": 280000.0,
+        "currency": "INR"
+      },
+      {
+        "id": "TXN_8102",
+        "txn_ts": "01-09-2022 01:12",
+        "from_entity_id": "PLANTFAN02",
+        "to_entity_id": "PLANTFAN00",
+        "amount": 260000.0,
+        "currency": "INR"
+      }
+    ]
+  },
+  "ALT-2026-0062": {
+    "id": "ALT-2026-0062",
+    "rule_id": "rapid_movement",
+    "rule_version": "v1.3.0",
+    "score": 81.2,
+    "reason": "Rapid pass-through: 98% of received funds (490,000 INR) transferred out in under 8 minutes",
+    "evidence": {
+      "account_id": "8000EBD30",
+      "holder": "Rajesh Kumar",
+      "inflow_amount": 500000.0,
+      "inflow_ts": "01-09-2022 02:02",
+      "outflow_amount": 490000.0,
+      "outflow_ts": "01-09-2022 02:08",
+      "delta_minutes": 6.0,
+      "inflow_outflow_ratio": 0.98,
+      "holding_time_threshold_minutes": 60
+    },
+    "score_breakdown": {
+      "rules": [
+        {"rule_id": "rapid_movement", "weight": 0.75, "score": 88.0}
+      ],
+      "ml": {
+        "score": 76.4,
+        "top_features": [
+          {"name": "fund_holding_duration_sec", "value": 360.0, "contribution": 0.65},
+          {"name": "inflow_outflow_divergence", "value": 0.02, "contribution": 0.22}
+        ]
+      }
+    },
+    "transactions": [
+      {
+        "id": "TXN_9011",
+        "txn_ts": "01-09-2022 02:02",
+        "from_entity_id": "8000C1288",
+        "to_entity_id": "8000EBD30",
+        "amount": 500000.0,
+        "currency": "INR"
+      },
+      {
+        "id": "TXN_9012",
+        "txn_ts": "01-09-2022 02:08",
+        "from_entity_id": "8000EBD30",
+        "to_entity_id": "PLANTCYC1",
+        "amount": 490000.0,
+        "currency": "INR"
+      }
+    ]
+  }
+}

@@ -1,0 +1,114 @@
+{
+  "neighborhood": {
+    "nodes": [
+      {"id": "8000EBD30", "type": "account", "label": "Rajesh Kumar (8000EBD30)", "risk": 0.94},
+      {"id": "PLANTCYC1", "type": "account", "label": "Amit Sharma (PLANTCYC1)", "risk": 0.96},
+      {"id": "PLANTCYC2", "type": "account", "label": "Suresh Raina (PLANTCYC2)", "risk": 0.88},
+      {"id": "PLANTCYC3", "type": "account", "label": "Deepak Chahar (PLANTCYC3)", "risk": 0.82},
+      {"id": "PLANTFAN00", "type": "account", "label": "Vikram Malhotra (PLANTFAN00)", "risk": 0.89},
+      {"id": "PLANTFAN01", "type": "account", "label": "Pooja Verma (PLANTFAN01)", "risk": 0.76},
+      {"id": "DEV_SHARED_01", "type": "device", "label": "OnePlus 9 (DEV_SHARED_01)", "risk": 0.92},
+      {"id": "PH_9876543210", "type": "phone", "label": "+91-98765-43210", "risk": 0.70},
+      {"id": "MERCH_OFFSHORE_9", "type": "merchant", "label": "CryptoPay Global (MERCH)", "risk": 0.85}
+    ],
+    "edges": [
+      {"id": "e_cyc_1", "source": "8000EBD30", "target": "PLANTCYC1", "type": "SENT", "amount": 450000.0, "ts": "01-09-2022 00:20"},
+      {"id": "e_cyc_2", "source": "PLANTCYC1", "target": "PLANTCYC2", "type": "SENT", "amount": 446000.0, "ts": "01-09-2022 00:26"},
+      {"id": "e_cyc_3", "source": "PLANTCYC2", "target": "PLANTCYC3", "type": "SENT", "amount": 442000.0, "ts": "01-09-2022 00:32"},
+      {"id": "e_cyc_4", "source": "PLANTCYC3", "target": "8000EBD30", "type": "SENT", "amount": 438500.0, "ts": "01-09-2022 00:38"},
+      {"id": "e_dev_1", "source": "8000EBD30", "target": "DEV_SHARED_01", "type": "USES", "amount": 0, "ts": "01-09-2022 00:15"},
+      {"id": "e_dev_2", "source": "PLANTCYC1", "target": "DEV_SHARED_01", "type": "USES", "amount": 0, "ts": "01-09-2022 00:18"},
+      {"id": "e_ph_1", "source": "8000EBD30", "target": "PH_9876543210", "type": "HAS_PHONE", "amount": 0, "ts": "01-09-2022 00:00"},
+      {"id": "e_fan_1", "source": "PLANTFAN01", "target": "PLANTFAN00", "type": "SENT", "amount": 280000.0, "ts": "01-09-2022 01:15"},
+      {"id": "e_merch_1", "source": "PLANTFAN00", "target": "MERCH_OFFSHORE_9", "type": "SENT", "amount": 2800000.0, "ts": "01-09-2022 01:45"}
+    ],
+    "truncated": false
+  },
+  "entity_details": {
+    "PLANTCYC1": {
+      "id": "PLANTCYC1",
+      "entity_type": "account",
+      "display_name": "Amit Sharma (Planted Ring 1)",
+      "attributes": {
+        "bank_code": "002 (ICICI Bank)",
+        "account_type": "Savings High-Volume",
+        "opened_at": "14-04-2021",
+        "kyc_status": "Tier 1 Simplified",
+        "registered_phone": "+91-98765-43211",
+        "risk_tier": "CRITICAL"
+      },
+      "aliases": [
+        {"alias_value": "amit.sharma99@icici", "match_score": 0.96, "match_reason": "VPA match"},
+        {"alias_value": "DEV_SHARED_01", "match_score": 0.92, "match_reason": "Shared device hardware hash"}
+      ]
+    },
+    "8000EBD30": {
+      "id": "8000EBD30",
+      "entity_type": "account",
+      "display_name": "Rajesh Kumar",
+      "attributes": {
+        "bank_code": "001 (State Bank of India)",
+        "account_type": "Current Account",
+        "opened_at": "02-02-2020",
+        "kyc_status": "Full Verified",
+        "risk_tier": "HIGH"
+      },
+      "aliases": [
+        {"alias_value": "rajesh.k@okaxis", "match_score": 0.98, "match_reason": "VPA binding"},
+        {"alias_value": "+91-98765-43210", "match_score": 1.0, "match_reason": "Verified mobile phone"}
+      ]
+    },
+    "DEV_SHARED_01": {
+      "id": "DEV_SHARED_01",
+      "entity_type": "device",
+      "display_name": "OnePlus 9 Pro",
+      "attributes": {
+        "hardware_uuid": "d41d8cd98f00b204e9800998ecf8427e",
+        "os_version": "Android 13 (OxygenOS)",
+        "associated_ips": ["103.212.43.19", "49.36.120.4"],
+        "compromised_flag": true
+      },
+      "aliases": [
+        {"alias_value": "ONEPLUS_A9001", "match_score": 0.94, "match_reason": "Build identifier match"}
+      ]
+    }
+  },
+  "timelines": {
+    "PLANTCYC1": [
+      {
+        "txn_id": "TXN_7701",
+        "ts": "01-09-2022 00:20",
+        "direction": "in",
+        "counterparty_id": "8000EBD30",
+        "amount": 450000.0,
+        "currency": "INR"
+      },
+      {
+        "txn_id": "TXN_7702",
+        "ts": "01-09-2022 00:26",
+        "direction": "out",
+        "counterparty_id": "PLANTCYC2",
+        "amount": 446000.0,
+        "currency": "INR"
+      }
+    ],
+    "8000EBD30": [
+      {
+        "txn_id": "TXN_7701",
+        "ts": "01-09-2022 00:20",
+        "direction": "out",
+        "counterparty_id": "PLANTCYC1",
+        "amount": 450000.0,
+        "currency": "INR"
+      },
+      {
+        "txn_id": "TXN_7704",
+        "ts": "01-09-2022 00:38",
+        "direction": "in",
+        "counterparty_id": "PLANTCYC3",
+        "amount": 438500.0,
+        "currency": "INR"
+      }
+    ]
+  }
+}

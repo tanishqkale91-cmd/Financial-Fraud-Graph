@@ -1,0 +1,45 @@
+{
+  "total": 4,
+  "items": [
+    {
+      "id": "ALT-2026-0091",
+      "rule_id": "cycles",
+      "rule_version": "v1.4.0",
+      "score": 96.5,
+      "reason": "Circular routing cycle detected: 4 accounts passed 450,000 INR back to origin in 18 minutes",
+      "status": "open",
+      "entity_id": "PLANTCYC1",
+      "created_at": "01-09-2022 00:58"
+    },
+    {
+      "id": "ALT-2026-0084",
+      "rule_id": "shared_infra",
+      "rule_version": "v1.2.1",
+      "score": 92.0,
+      "reason": "Hardware device DEV_SHARED_01 and IP 103.212.43.19 shared across 5 distinct KYC entities within 48h",
+      "status": "open",
+      "entity_id": "DEV_SHARED_01",
+      "created_at": "01-09-2022 01:05"
+    },
+    {
+      "id": "ALT-2026-0078",
+      "rule_id": "fan_in_out",
+      "rule_version": "v1.1.0",
+      "score": 87.4,
+      "reason": "Aggressive fan-in concentration: 11 distinct originator accounts credited PLANTFAN00 within 2 hours",
+      "status": "open",
+      "entity_id": "PLANTFAN00",
+      "created_at": "01-09-2022 01:40"
+    },
+    {
+      "id": "ALT-2026-0062",
+      "rule_id": "rapid_movement",
+      "rule_version": "v1.3.0",
+      "score": 81.2,
+      "reason": "Rapid pass-through: 98% of received funds (490,000 INR) transferred out in under 8 minutes",
+      "status": "open",
+      "entity_id": "8000EBD30",
+      "created_at": "01-09-2022 02:15"
+    }
+  ]
+}

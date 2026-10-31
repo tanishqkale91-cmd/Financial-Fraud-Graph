@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const CANONICAL_FIELDS = [
   { key: 'timestamp', label: 'Timestamp', required: true, desc: 'Transaction execution datetime' },
@@ -26,6 +26,12 @@ export default function MappingWizard({
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [newTemplateName, setNewTemplateName] = useState('');
   const [showSaveTpl, setShowSaveTpl] = useState(false);
+
+  useEffect(() => {
+    if (suggestedMapping && Object.keys(suggestedMapping).length > 0) {
+      setMapping({ ...suggestedMapping });
+    }
+  }, [JSON.stringify(suggestedMapping)]);
 
   const handleFieldChange = (canonicalKey, sourceCol) => {
     setMapping((prev) => ({

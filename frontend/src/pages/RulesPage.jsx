@@ -9,9 +9,11 @@ export default function RulesPage() {
   const [editWeight, setEditWeight] = useState(0.4);
   const [editEnabled, setEditEnabled] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [rulesError, setRulesError] = useState(null);
 
   const fetchRulesAndStats = async () => {
     setLoading(true);
+    setRulesError(null);
     try {
       const [rList, sData] = await Promise.all([
         client.getRules(),
@@ -21,6 +23,7 @@ export default function RulesPage() {
       setStats(sData || { by_rule: [] });
     } catch (err) {
       console.error('Failed to load rules & feedback stats:', err);
+      setRulesError(err.message || 'Failed to load detector rules.');
     } finally {
       setLoading(false);
     }
@@ -41,6 +44,7 @@ export default function RulesPage() {
     if (!editingRule) return;
 
     setIsSubmitting(true);
+    setRulesError(null);
     try {
       await client.patchRule(editingRule.rule_id, {
         weight: parseFloat(editWeight),
@@ -50,6 +54,7 @@ export default function RulesPage() {
       await fetchRulesAndStats();
     } catch (err) {
       console.error('Failed to patch rule:', err);
+      setRulesError(err.message || 'Failed to save rule configuration.');
     } finally {
       setIsSubmitting(false);
     }
@@ -78,6 +83,34 @@ export default function RulesPage() {
           </div>
         </div>
       </div>
+
+      {/* Rules Error Banner */}
+      {rulesError && (
+        <div
+          role="alert"
+          style={{
+            backgroundColor: 'var(--risk-critical-bg)',
+            border: '1px solid var(--risk-critical-border)',
+            color: 'var(--risk-critical-text)',
+            padding: '12px 16px',
+            borderRadius: 'var(--radius-sm)',
+            fontSize: '13px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <span>⚠ {rulesError}</span>
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={() => setRulesError(null)}
+            style={{ fontSize: '11px', padding: '2px 8px' }}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Rules Table */}
       <div className="workbench-panel">

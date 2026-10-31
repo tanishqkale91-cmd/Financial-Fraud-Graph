@@ -13,15 +13,18 @@ export default function CasesPage() {
   const [newPriority, setNewPriority] = useState('high');
   const [newAlertsInput, setNewAlertsInput] = useState('ALT-2026-0091, ALT-2026-0084');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [caseError, setCaseError] = useState(null);
 
   const fetchCases = async () => {
     setLoading(true);
+    setCaseError(null);
     try {
       const data = await client.getCases({ status: statusFilter });
       setCases(data.items || []);
       setTotal(data.total || 0);
     } catch (err) {
       console.error('Failed to fetch cases:', err);
+      setCaseError(err.message || 'Failed to load investigation cases.');
     } finally {
       setLoading(false);
     }
@@ -36,6 +39,7 @@ export default function CasesPage() {
     if (!newTitle.trim()) return;
 
     setIsSubmitting(true);
+    setCaseError(null);
     try {
       const alertIds = newAlertsInput
         .split(',')
@@ -53,6 +57,7 @@ export default function CasesPage() {
       navigate(`/cases/${created.id}`);
     } catch (err) {
       console.error('Create case failed:', err);
+      setCaseError(err.message || 'Failed to create new investigation case.');
     } finally {
       setIsSubmitting(false);
     }
@@ -91,6 +96,34 @@ export default function CasesPage() {
           </button>
         </div>
       </div>
+
+      {/* Case Error Banner */}
+      {caseError && (
+        <div
+          role="alert"
+          style={{
+            backgroundColor: 'var(--risk-critical-bg)',
+            border: '1px solid var(--risk-critical-border)',
+            color: 'var(--risk-critical-text)',
+            padding: '12px 16px',
+            borderRadius: 'var(--radius-sm)',
+            fontSize: '13px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <span>⚠ {caseError}</span>
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={() => setCaseError(null)}
+            style={{ fontSize: '11px', padding: '2px 8px' }}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Filter Bar */}
       <div

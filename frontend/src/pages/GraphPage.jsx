@@ -36,10 +36,12 @@ export default function GraphPage() {
 
   // Subgraph snapshot capture status
   const [snapshotSaved, setSnapshotSaved] = useState(false);
+  const [graphError, setGraphError] = useState(null);
 
   const fetchNeighborhood = async (targetId, currentHops = hops) => {
     setLoading(true);
     setSnapshotSaved(false);
+    setGraphError(null);
     try {
       const activeTypes = Object.keys(nodeTypes)
         .filter((k) => nodeTypes[k])
@@ -63,6 +65,7 @@ export default function GraphPage() {
       }
     } catch (err) {
       console.error('Failed to load graph neighborhood:', err);
+      setGraphError(err.message || `Failed to traverse graph neighborhood for ${targetId}`);
     } finally {
       setLoading(false);
     }
@@ -172,6 +175,34 @@ export default function GraphPage() {
           </button>
         </div>
       </div>
+
+      {/* Graph Query Error Banner */}
+      {graphError && (
+        <div
+          role="alert"
+          style={{
+            backgroundColor: 'var(--risk-critical-bg)',
+            border: '1px solid var(--risk-critical-border)',
+            color: 'var(--risk-critical-text)',
+            padding: '12px 16px',
+            borderRadius: 'var(--radius-sm)',
+            fontSize: '13px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <span>⚠ {graphError}</span>
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={() => setGraphError(null)}
+            style={{ fontSize: '11px', padding: '2px 8px' }}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Truncated Notice */}
       {graphData.truncated && (

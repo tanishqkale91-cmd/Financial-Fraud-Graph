@@ -22,9 +22,11 @@ export default function CaseDetailPage() {
   const [decisionVerdict, setDecisionVerdict] = useState('confirmed_fraud');
   const [decisionRationale, setDecisionRationale] = useState('');
   const [isSubmittingDecision, setIsSubmittingDecision] = useState(false);
+  const [detailError, setDetailError] = useState(null);
 
   const fetchCaseDetail = async () => {
     setLoading(true);
+    setDetailError(null);
     try {
       const data = await client.getCase(id);
       setCaseData(data);
@@ -32,6 +34,7 @@ export default function CaseDetailPage() {
       setSummary(sumRes.summary || data.summary || '');
     } catch (err) {
       console.error('Failed to load case detail:', err);
+      setDetailError(err.message || 'Failed to load case detail.');
     } finally {
       setLoading(false);
     }
@@ -48,15 +51,18 @@ export default function CaseDetailPage() {
       setTimeout(() => setCopiedSummary(false), 3000);
     } catch (err) {
       console.error('Clipboard copy failed:', err);
+      setDetailError('Unable to copy summary to clipboard.');
     }
   };
 
   const handleAddEvidence = async (payload) => {
+    setDetailError(null);
     try {
       await client.addCaseEvidence(id, payload);
       await fetchCaseDetail();
     } catch (err) {
       console.error('Failed to attach evidence:', err);
+      setDetailError(err.message || 'Failed to attach evidence.');
     }
   };
 
@@ -64,6 +70,7 @@ export default function CaseDetailPage() {
     e.preventDefault();
     if (!taskTitle.trim()) return;
 
+    setDetailError(null);
     try {
       await client.addCaseTask(id, {
         title: taskTitle.trim(),
@@ -75,16 +82,19 @@ export default function CaseDetailPage() {
       await fetchCaseDetail();
     } catch (err) {
       console.error('Add task failed:', err);
+      setDetailError(err.message || 'Failed to add task.');
     }
   };
 
   const handleToggleTaskStatus = async (taskId, currentStatus) => {
     const nextStatus = currentStatus === 'done' ? 'open' : 'done';
+    setDetailError(null);
     try {
       await client.patchTask(taskId, { status: nextStatus });
       await fetchCaseDetail();
     } catch (err) {
       console.error('Failed to toggle task:', err);
+      setDetailError(err.message || 'Failed to update task.');
     }
   };
 
@@ -93,6 +103,7 @@ export default function CaseDetailPage() {
     if (!decisionRationale.trim()) return;
 
     setIsSubmittingDecision(true);
+    setDetailError(null);
     try {
       await client.recordCaseDecision(id, {
         decision: decisionVerdict,
@@ -102,6 +113,7 @@ export default function CaseDetailPage() {
       await fetchCaseDetail();
     } catch (err) {
       console.error('Decision submission error:', err);
+      setDetailError(err.message || 'Failed to record decision.');
     } finally {
       setIsSubmittingDecision(false);
     }
@@ -183,6 +195,34 @@ export default function CaseDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Detail Error Banner */}
+      {detailError && (
+        <div
+          role="alert"
+          style={{
+            backgroundColor: 'var(--risk-critical-bg)',
+            border: '1px solid var(--risk-critical-border)',
+            color: 'var(--risk-critical-text)',
+            padding: '12px 16px',
+            borderRadius: 'var(--radius-sm)',
+            fontSize: '13px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <span>⚠ {detailError}</span>
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={() => setDetailError(null)}
+            style={{ fontSize: '11px', padding: '2px 8px' }}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Generated Plain-Language Summary Box with Copy Button */}
       <div className="workbench-panel">

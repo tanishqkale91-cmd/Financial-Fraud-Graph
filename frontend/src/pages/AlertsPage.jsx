@@ -22,9 +22,11 @@ export default function AlertsPage() {
   // Batch selection for Case creation
   const [checkedAlertIds, setCheckedAlertIds] = useState(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   const fetchAlerts = async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await client.getAlerts({
         status: statusFilter,
@@ -41,6 +43,7 @@ export default function AlertsPage() {
       }
     } catch (err) {
       console.error('Failed to fetch alerts:', err);
+      setError(err.message || 'Failed to fetch suspicious alerts queue.');
     } finally {
       setLoading(false);
     }
@@ -53,11 +56,13 @@ export default function AlertsPage() {
   const handleSelectRow = async (alertId) => {
     setSelectedAlertId(alertId);
     setLoadingDetail(true);
+    setError(null);
     try {
       const detail = await client.getAlert(alertId);
       setSelectedAlertDetail(detail);
     } catch (err) {
       console.error('Failed to load alert detail:', err);
+      setError(`Failed to retrieve details for alert ${alertId}.`);
     } finally {
       setLoadingDetail(false);
     }
@@ -86,6 +91,7 @@ export default function AlertsPage() {
 
   const handleFeedback = async (id, verdict, note) => {
     setIsSubmitting(true);
+    setError(null);
     try {
       await client.postAlertFeedback(id, verdict, note);
       // Refresh list and selected
@@ -96,6 +102,7 @@ export default function AlertsPage() {
       }
     } catch (err) {
       console.error('Feedback error:', err);
+      setError(err.message || 'Failed to submit analyst feedback.');
     } finally {
       setIsSubmitting(false);
     }
@@ -106,6 +113,7 @@ export default function AlertsPage() {
     if (alertIdsToUse.length === 0) return;
 
     setIsSubmitting(true);
+    setError(null);
     try {
       const newCase = await client.createCase({
         title: `Investigation on ${alertIdsToUse.join(', ')}`,
@@ -115,6 +123,7 @@ export default function AlertsPage() {
       navigate(`/cases/${newCase.id}`);
     } catch (err) {
       console.error('Failed to create case:', err);
+      setError(err.message || 'Failed to create case from selected alerts.');
     } finally {
       setIsSubmitting(false);
     }
@@ -157,6 +166,34 @@ export default function AlertsPage() {
           </div>
         </div>
       </div>
+
+      {/* Error Banner */}
+      {error && (
+        <div
+          role="alert"
+          style={{
+            backgroundColor: 'var(--risk-critical-bg)',
+            border: '1px solid var(--risk-critical-border)',
+            color: 'var(--risk-critical-text)',
+            padding: '12px 16px',
+            borderRadius: 'var(--radius-sm)',
+            fontSize: '13px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <span>⚠ {error}</span>
+          <button
+            type="button"
+            className="btn btn-secondary btn-sm"
+            onClick={() => setError(null)}
+            style={{ fontSize: '11px', padding: '2px 8px' }}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Filter Toolbar */}
       <div

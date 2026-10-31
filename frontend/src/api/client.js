@@ -29,6 +29,19 @@ let mockRules = JSON.parse(JSON.stringify(rulesMock));
 let mockIngestion = JSON.parse(JSON.stringify(ingestionMock));
 let mockGraph = JSON.parse(JSON.stringify(graphMock));
 
+export const INGESTION_STAGES = [
+  { key: 'uploading', label: 'Uploading Transaction Batch', progress: 15 },
+  { key: 'validating', label: 'Validating Schema & Integrity Checks', progress: 35 },
+  { key: 'processing', label: 'Normalizing & Processing Transactions', progress: 55 },
+  { key: 'entity_resolution', label: 'Entity Resolution & VPA Disambiguation', progress: 75 },
+  { key: 'graph_construction', label: 'Graph Construction & Ring Detection', progress: 92 },
+  { key: 'completed', label: 'Ingestion Completed Successfully', progress: 100 },
+];
+
+// Active Ingestion Session State
+let activeIngestionTask = null;
+let activeBatchState = null;
+
 const delay = (ms = 120) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const client = {
@@ -44,22 +57,82 @@ export const client = {
     return res.data;
   },
 
+  // Active Batch & Task Session Recovery
+  getActiveIngestion: () => {
+    return {
+      batch: activeBatchState,
+      task: activeIngestionTask,
+    };
+  },
+
+  resetIngestion: () => {
+    activeBatchState = null;
+    activeIngestionTask = null;
+  },
+
   // Ingestion
-  uploadFile: async (formData) => {
+  uploadFile: async (payload) => {
     if (USE_MOCKS) {
       await delay(250);
-      return uploadMock;
+      let filename = 'HI-Small_50k_enriched.csv';
+      let fileSize = 14829100;
+
+      if (payload instanceof FormData) {
+        const fileEntry = payload.get('file');
+        const isDemo = payload.get('is_demo');
+        if (fileEntry && fileEntry.name) {
+          filename = fileEntry.name;
+          fileSize = fileEntry.size || 450000;
+        } else if (isDemo === 'true') {
+          filename = 'HI-Small_50k_enriched.csv';
+          fileSize = 14829100;
+        }
+      } else if (payload && typeof payload === 'object') {
+        if (payload.filename) filename = payload.filename;
+        if (payload.file_size) fileSize = payload.file_size;
+      }
+
+      const batchId = `BATCH_${Date.now().toString().slice(-8)}`;
+      activeBatchState = {
+        batch_id: batchId,
+        filename,
+        file_size: fileSize,
+        columns: [...uploadMock.columns],
+        suggested_mapping: { ...uploadMock.suggested_mapping },
+        sample_rows: JSON.parse(JSON.stringify(uploadMock.sample_rows)),
+        status: 'uploaded',
+        created_at: new Date().toLocaleString('en-GB'),
+        mapping: null,
+        ingestionStatus: null,
+      };
+
+      return {
+        batch_id: batchId,
+        filename,
+        file_size: fileSize,
+        columns: activeBatchState.columns,
+        suggested_mapping: activeBatchState.suggested_mapping,
+        sample_rows: activeBatchState.sample_rows,
+      };
     }
-    const res = await http.post('/api/ingestion/upload', formData, {
+
+    const res = await http.post('/api/ingestion/upload', payload, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
     return res.data;
   },
 
   saveMapping: async (batchId, mapping) => {
+    if (!mapping || Object.keys(mapping).length === 0) {
+      throw new Error('Mapping configuration cannot be empty');
+    }
     if (USE_MOCKS) {
       await delay(150);
-      return { batch_id: batchId, status: 'pending', mapping };
+      if (activeBatchState && activeBatchState.batch_id === batchId) {
+        activeBatchState.mapping = mapping;
+        activeBatchState.status = 'mapped';
+      }
+      return { batch_id: batchId, status: 'mapped', mapping };
     }
     const res = await http.post(`/api/ingestion/${batchId}/mapping`, { mapping });
     return res.data;
@@ -68,16 +141,19 @@ export const client = {
   getMappingTemplates: async () => {
     if (USE_MOCKS) {
       await delay(100);
-      return mockIngestion.templates;
+      return mockIngestion.templates || [];
     }
     const res = await http.get('/api/ingestion/mappings/templates');
     return res.data;
   },
 
   saveMappingTemplate: async (name, mapping) => {
+    if (!name || !name.trim()) {
+      throw new Error('Template name is required');
+    }
     if (USE_MOCKS) {
       await delay(150);
-      const newTpl = { id: `TPL_${Date.now()}`, name, mapping };
+      const newTpl = { id: `TPL_${Date.now()}`, name: name.trim(), mapping };
       mockIngestion.templates.push(newTpl);
       return newTpl;
     }
@@ -86,9 +162,28 @@ export const client = {
   },
 
   runIngestion: async (batchId) => {
+    if (!batchId) {
+      throw new Error('Valid batch ID is required to start ingestion');
+    }
     if (USE_MOCKS) {
       await delay(200);
-      return { task_id: `TASK_INGEST_${Date.now()}`, batch_id: batchId };
+      const taskId = `TASK_INGEST_${Date.now()}`;
+      activeIngestionTask = {
+        task_id: taskId,
+        batch_id: batchId,
+        stage_index: 0,
+        status: INGESTION_STAGES[0].key,
+        stage_label: INGESTION_STAGES[0].label,
+        progress: INGESTION_STAGES[0].progress,
+        state: 'RUNNING',
+        is_done: false,
+        created_at: Date.now(),
+        updated_at: Date.now(),
+      };
+      if (activeBatchState && activeBatchState.batch_id === batchId) {
+        activeBatchState.status = 'processing';
+      }
+      return { task_id: taskId, batch_id: batchId, status: 'RUNNING' };
     }
     const res = await http.post(`/api/ingestion/${batchId}/run`);
     return res.data;
@@ -96,10 +191,58 @@ export const client = {
 
   getIngestionStatus: async (batchId) => {
     if (USE_MOCKS) {
-      await delay(100);
+      await delay(120);
+
+      // Advance task progression deterministically on each poll
+      if (activeIngestionTask && activeIngestionTask.batch_id === batchId) {
+        if (!activeIngestionTask.is_done) {
+          activeIngestionTask.stage_index = Math.min(
+            activeIngestionTask.stage_index + 1,
+            INGESTION_STAGES.length - 1
+          );
+          const currentStage = INGESTION_STAGES[activeIngestionTask.stage_index];
+          activeIngestionTask.status = currentStage.key;
+          activeIngestionTask.stage_label = currentStage.label;
+          activeIngestionTask.progress = currentStage.progress;
+          activeIngestionTask.updated_at = Date.now();
+
+          if (currentStage.key === 'completed') {
+            activeIngestionTask.is_done = true;
+            activeIngestionTask.state = 'SUCCESS';
+          }
+        }
+
+        const isCompleted = activeIngestionTask.status === 'completed';
+        const result = {
+          batch_id: batchId,
+          task_id: activeIngestionTask.task_id,
+          status: activeIngestionTask.status,
+          stage_label: activeIngestionTask.stage_label,
+          progress: activeIngestionTask.progress,
+          is_done: isCompleted,
+          row_count: isCompleted
+            ? mockIngestion.row_count
+            : Math.round(mockIngestion.row_count * (activeIngestionTask.progress / 100)),
+          valid_count: isCompleted ? mockIngestion.valid_count : 0,
+          invalid_count: isCompleted ? mockIngestion.invalid_count : 0,
+          report: isCompleted ? mockIngestion.report : null,
+        };
+
+        if (isCompleted && activeBatchState && activeBatchState.batch_id === batchId) {
+          activeBatchState.status = 'completed';
+          activeBatchState.ingestionStatus = result;
+        }
+
+        return result;
+      }
+
+      // If already completed or no active task running, return static mock results
       return {
         batch_id: batchId,
         status: mockIngestion.status,
+        stage_label: 'Ingestion Completed Successfully',
+        progress: 100,
+        is_done: true,
         row_count: mockIngestion.row_count,
         valid_count: mockIngestion.valid_count,
         invalid_count: mockIngestion.invalid_count,
@@ -113,7 +256,12 @@ export const client = {
   getProvenance: async (batchId, recordType = 'transaction', recordId = 'TXN_7701') => {
     if (USE_MOCKS) {
       await delay(100);
-      return mockIngestion.provenance[recordId] || mockIngestion.provenance['TXN_7701'];
+      const steps = mockIngestion.provenance[recordId];
+      if (steps) return steps;
+      if (recordId === 'TXN_7701' || !recordId) {
+        return mockIngestion.provenance['TXN_7701'] || [];
+      }
+      return [];
     }
     const res = await http.get(`/api/ingestion/${batchId}/provenance`, {
       params: { record_type: recordType, record_id: recordId },
@@ -124,14 +272,14 @@ export const client = {
   getBatchEntities: async (batchId) => {
     if (USE_MOCKS) {
       await delay(100);
-      return mockIngestion.entities;
+      return mockIngestion.entities || [];
     }
     // Fallback: endpoint defined in api-gaps.md
     try {
       const res = await http.get(`/api/ingestion/${batchId}/entities`);
       return res.data;
     } catch {
-      return mockIngestion.entities;
+      return mockIngestion.entities || [];
     }
   },
 
@@ -157,7 +305,16 @@ export const client = {
   getTask: async (taskId) => {
     if (USE_MOCKS) {
       await delay(80);
-      return { state: 'SUCCESS', result: { message: 'Completed successfully' } };
+      if (activeIngestionTask && activeIngestionTask.task_id === taskId) {
+        return {
+          task_id: taskId,
+          state: activeIngestionTask.state,
+          progress: activeIngestionTask.progress,
+          stage: activeIngestionTask.status,
+          result: activeIngestionTask.is_done ? { message: 'Completed successfully' } : null,
+        };
+      }
+      return { task_id: taskId, state: 'SUCCESS', result: { message: 'Completed successfully' } };
     }
     const res = await http.get(`/api/tasks/${taskId}`);
     return res.data;
@@ -251,11 +408,35 @@ export const client = {
   getEntity: async (id) => {
     if (USE_MOCKS) {
       await delay(100);
-      return mockGraph.entity_details[id] || {
+      if (mockGraph.entity_details[id]) {
+        return mockGraph.entity_details[id];
+      }
+      const node = mockGraph.neighborhood.nodes.find((n) => n.id === id);
+      if (node) {
+        return {
+          id: node.id,
+          entity_type: node.type || 'account',
+          display_name: node.label || `Entity ${node.id}`,
+          attributes: {
+            risk_score: `${Math.round((node.risk || 0.5) * 100)}%`,
+            risk_tier: node.risk >= 0.85 ? 'CRITICAL' : node.risk >= 0.7 ? 'HIGH' : 'EVALUATED',
+            status: 'FLAGGED_IN_GRAPH',
+            category: node.type,
+          },
+          aliases: [
+            {
+              alias_value: `${node.id.toLowerCase()}@vpa`,
+              match_score: 0.92,
+              match_reason: 'Graph topology adjacency correlation',
+            },
+          ],
+        };
+      }
+      return {
         id,
         entity_type: 'account',
         display_name: `Entity ${id}`,
-        attributes: { risk_level: 'High' },
+        attributes: { risk_level: 'High', status: 'Unindexed' },
         aliases: [],
       };
     }
@@ -266,7 +447,24 @@ export const client = {
   getEntityTimeline: async (id, { start = '', end = '' } = {}) => {
     if (USE_MOCKS) {
       await delay(100);
-      return mockGraph.timelines[id] || mockGraph.timelines['8000EBD30'] || [];
+      if (mockGraph.timelines[id]) {
+        return mockGraph.timelines[id];
+      }
+      // Generate synthetic timeline from edges for this entity
+      const edges = mockGraph.neighborhood.edges.filter(
+        (e) => e.source === id || e.target === id
+      );
+      if (edges.length > 0) {
+        return edges.map((e, idx) => ({
+          txn_id: e.id || `TXN_${idx + 8000}`,
+          ts: e.ts || '01-09-2022 00:30',
+          direction: e.source === id ? 'out' : 'in',
+          counterparty_id: e.source === id ? e.target : e.source,
+          amount: e.amount || 250000,
+          currency: 'INR',
+        }));
+      }
+      return mockGraph.timelines['8000EBD30'] || [];
     }
     const res = await http.get(`/api/entities/${id}/timeline`, { params: { start, end } });
     return res.data;

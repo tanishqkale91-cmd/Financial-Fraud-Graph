@@ -1,11 +1,31 @@
+# Secrets — never commit these
 .env
-.venv/
+
+# Python
 __pycache__/
-*.pyc
-node_modules/
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-.pytest_cache/
-.DS_Store
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+build/
+
+# Data files (can be large)
+data/*.csv
+data/raw/*.csv
+data/processed/*.csv
+data/HI-Small_Trans.csv
+
+# Node / React
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# Docker volumes
+postgres_data/
+neo4j_data/
+
+# IDE
+.idea/
+.vscode/
+*.swp

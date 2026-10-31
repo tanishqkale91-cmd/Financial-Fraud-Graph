@@ -15,7 +15,7 @@ import pandas as pd
 from sqlalchemy.orm import Session
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
-from app.models import Account, Transaction, ProvenanceLog
+from app.models import Entity, Transaction, Provenance
 
 
 def _new_uuid() -> str:

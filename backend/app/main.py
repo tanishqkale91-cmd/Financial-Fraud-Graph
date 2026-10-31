@@ -9,6 +9,9 @@ from sqlalchemy import text
 from app.core.db import engine, init_db
 from app.core.neo4j_client import ensure_constraints, run_query, close_driver
 from app.api.ingestion import router as ingestion_router
+from app.api.alerts import router as alerts_router
+from app.api.graph import router as graph_router
+from app.api.detection import router as detection_router
 
 
 @asynccontextmanager
@@ -68,3 +71,6 @@ def health():
 
 # Include Routers
 app.include_router(ingestion_router)
+app.include_router(alerts_router)
+app.include_router(graph_router)
+app.include_router(detection_router)
